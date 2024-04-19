@@ -42,6 +42,9 @@ class DBStorage:
         if HBNB_ENV == 'test':
             Base.metadata.drop_all(self.__engine)
 
+        self.reload()
+
+
     def all(self, cls=None):
         '''query on the current db session all cls objects
         this method must return a dictionary: (like FileStorage)
@@ -62,6 +65,7 @@ class DBStorage:
                 dct[key] = obj
         return dct
 
+
     def new(self, obj):
         '''adds the obj to the current db session'''
         if obj is not None:
@@ -73,9 +77,11 @@ class DBStorage:
                 self.__session.rollback()
                 raise ex
 
+
     def save(self):
         '''commit all changes of the current db session'''
         self.__session.commit()
+
 
     def delete(self, obj=None):
         ''' deletes from the current databse session the obj
@@ -85,16 +91,14 @@ class DBStorage:
             self.__session.query(type(obj)).filter(
                 type(obj).id == obj.id).delete()
 
+
     def reload(self):
-        def get(self, cls, id):
-            """Retrieve one object based on class and its ID."""
-            if cls and id:
-                try:
-                    obj = self.__session.query(cls).get(id)
-                    return obj
-                except Exception:
-                    return None
-            return None
+        """Create all tables in the database and initialize a new session."""
+        Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
+        self.__session = Session()
+
 
     def count(self, cls=None):
         """Count the number of objects in storage matching the given class."""
@@ -107,6 +111,27 @@ class DBStorage:
             for model_class in [User, State, City, Amenity, Place, Review]:
                 total_count += self.__session.query(model_class).count()
             return total_count
+
+
+    def get(self, cls, id):
+        """Retrieve one object based on class and its ID."""
+        if cls and id:
+            return self.__session.query(cls).filter(cls.id == id).one_or_none()
+        return None
+    
+    
+    def count(self, cls=None):
+        """Count the number of objects in storage matching the given class."""
+        if cls:
+            # Count objects of the given class
+            return self.__session.query(cls).count()
+        else:
+            # Count all objects
+            total_count = 0
+            for model_class in classes.values():
+                total_count += self.__session.query(model_class).count()
+            return total_count
+        
 
     def close(self):
         """closes the working SQLAlchemy session"""
