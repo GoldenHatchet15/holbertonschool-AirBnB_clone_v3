@@ -7,5 +7,6 @@ app_views = Blueprint("app_views", __name__, url_prefix='/api/v1')
 
 # Must import individual files below so as not to circular import
 
-from api.v1.views.index import *
-from api.v1.views.states import *
+from .states import *  # This imports the states module
+from .index import *   # Assume you have some basic routes in index.py
+from .cities import *  # This imports the cities module
