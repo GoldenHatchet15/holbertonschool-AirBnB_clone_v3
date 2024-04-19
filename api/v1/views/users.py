@@ -1,4 +1,4 @@
-# api/v1/views/users.py
+#!/usr/bin/env python3
 import logging
 from models import storage
 from models.user import User
