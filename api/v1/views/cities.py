@@ -5,6 +5,7 @@ from models.city import City
 from models import storage
 from api.v1.views import app_views
 from flask import abort, jsonify, request
+from flask import current_app
 
 
 @app_views.route('/states/<state_id>/cities',
@@ -18,7 +19,8 @@ def get_cities_by_state(state_id):
     return jsonify(list_cities)
 
 
-@app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
+@app_views.route('/cities/<city_id>',
+                 methods=['GET'], strict_slashes=False)
 def get_city(city_id):
     """Retrieves a specific City object"""
     city = storage.get(City, city_id)
@@ -27,7 +29,8 @@ def get_city(city_id):
     return jsonify(city.to_dict())
 
 
-@app_views.route('/cities/<city_id>', methods=['DELETE'], strict_slashes=False)
+@app_views.route('/cities/<city_id>',
+                 methods=['DELETE'], strict_slashes=False)
 def delete_city(city_id):
     """Deletes a specific City object"""
     city = storage.get(City, city_id)
@@ -44,20 +47,25 @@ def create_city(state_id):
     """Creates a new City object in a given State"""
     state = storage.get(State, state_id)
     if state is None:
+        current_app.logger.error(f'State not found: {state_id}')
         abort(404)
-    city_info = request.get_json()
+    city_info = request.get_json(silent=True)
     if city_info is None:
+        current_app.logger.error('Failed to decode JSON')
         abort(400, description="Not a JSON")
     if 'name' not in city_info:
+        current_app.logger.error('Missing name in city data')
         abort(400, description="Missing name")
     city_info['state_id'] = state_id
     new_city = City(**city_info)
     storage.new(new_city)
     storage.save()
+    current_app.logger.info(f'Created new city: {new_city.to_dict()}')
     return jsonify(new_city.to_dict()), 201
 
 
-@app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
+@app_views.route('/cities/<city_id>',
+                 methods=['PUT'], strict_slashes=False)
 def update_city(city_id):
     """Updates a specific City object"""
     city = storage.get(City, city_id)
