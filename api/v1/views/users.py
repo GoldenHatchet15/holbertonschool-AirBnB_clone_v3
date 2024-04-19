@@ -5,11 +5,13 @@ from models.user import User
 from flask import jsonify, abort, request
 from api.v1.views import app_views
 
+
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
 def get_users():
     """Retrieves the list of all User objects"""
     users = storage.all(User)
     return jsonify([user.to_dict() for user in users.values()])
+
 
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 def get_user(user_id):
@@ -18,6 +20,7 @@ def get_user(user_id):
     if not user:
         return jsonify({"error": "Not found"}), 404
     return jsonify(user.to_dict())
+
 
 @app_views.route('/users/<user_id>', methods=['DELETE'], strict_slashes=False)
 def delete_user(user_id):
@@ -29,10 +32,11 @@ def delete_user(user_id):
     storage.save()
     return jsonify({}), 200
 
+
 @app_views.route('/users', methods=['POST'], strict_slashes=False)
 def create_user():
     """Creates a User"""
-    user_data = request.get_json(silent=True) 
+    user_data = request.get_json(silent=True)
     if not user_data:
         return jsonify({"error": "Not a JSON"}), 400
     if 'email' not in user_data:
