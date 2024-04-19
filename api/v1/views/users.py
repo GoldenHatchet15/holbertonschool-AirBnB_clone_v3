@@ -32,7 +32,7 @@ def delete_user(user_id):
 @app_views.route('/users', methods=['POST'], strict_slashes=False)
 def create_user():
     """Creates a User"""
-    user_data = request.get_json(silent=True)  # Use silent=True to handle error internally
+    user_data = request.get_json(silent=True) 
     if not user_data:
         return jsonify({"error": "Not a JSON"}), 400
     if 'email' not in user_data:
