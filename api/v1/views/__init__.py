@@ -13,5 +13,7 @@ from .cities import *  # This imports the cities module
 from .users import *  # This imports the users module
 from .amenities import *
 from .places import *
+from .places_reviews import *
+
 
 
