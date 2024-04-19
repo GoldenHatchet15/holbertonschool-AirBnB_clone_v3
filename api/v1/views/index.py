@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-"""API endpoints for checking system status and getting statistics on stored entities."""
+"""API endpoints for checking system status
+    and getting statistics on stored entities."""
 
 from flask import jsonify
 from api.v1.views import app_views
@@ -11,10 +12,12 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
+
 @app_views.route("/status", methods=["GET"])
 def status_page():
     """Returns a JSON response indicating the API is operational."""
     return jsonify({"status": "OK"})
+
 
 @app_views.route("/stats", methods=["GET"])
 def stats_page():
@@ -32,5 +35,6 @@ def stats_page():
         "states": State,
         "users": User
     }
-    cls_count_dict = {key: storage.count(cls) for key, cls in cls_to_plural.items()}
+    cls_count_dict = {key: storage.count(cls)
+                      for key, cls in cls_to_plural.items()}
     return jsonify(cls_count_dict)
