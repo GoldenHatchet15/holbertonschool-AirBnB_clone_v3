@@ -15,7 +15,7 @@ def get_user(user_id):
     """Retrieves a specific User"""
     user = storage.get(User, user_id)
     if not user:
-        abort(404)
+        return jsonify({"error": "Not found"}), 404
     return jsonify(user.to_dict())
 
 @app_views.route('/users/<user_id>', methods=['DELETE'], strict_slashes=False)
@@ -23,7 +23,7 @@ def delete_user(user_id):
     """Deletes a User object"""
     user = storage.get(User, user_id)
     if not user:
-        abort(404)
+        return jsonify({"error": "Not found"}), 404
     storage.delete(user)
     storage.save()
     return jsonify({}), 200
@@ -31,16 +31,17 @@ def delete_user(user_id):
 @app_views.route('/users', methods=['POST'], strict_slashes=False)
 def create_user():
     """Creates a User"""
-    user_data = request.get_json()
+    user_data = request.get_json(silent=True)  # Use silent=True to handle error internally
     if not user_data:
-        abort(400, description="Not a JSON")
+        return jsonify({"error": "Not a JSON"}), 400
     if 'email' not in user_data:
-        abort(400, description="Missing email")
+        return jsonify({"error": "Missing email"}), 400
     if 'password' not in user_data:
-        abort(400, description="Missing password")
+        return jsonify({"error": "Missing password"}), 400
     new_user = User(**user_data)
     new_user.save()
     return jsonify(new_user.to_dict()), 201
+
 
 @app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
 def update_user(user_id):
