@@ -1,18 +1,30 @@
-from . import app_views
+#!/usr/bin/python3
+"""API endpoints for checking system status and getting statistics on stored entities."""
+
 from flask import jsonify
-from models import storage, Amenity, City, Place, Review, State, User
+from api.v1.views import app_views
+from models import storage
+from models.amenity import Amenity
+from models.city import City
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.user import User
 
-
-@app_views.route('/status', methods=['GET'])
-def get_status():
-    """Returns a JSON object with the status of the API"""
+@app_views.route("/status", methods=["GET"])
+def status_page():
+    """Returns a JSON response indicating the API is operational."""
     return jsonify({"status": "OK"})
 
-
-@app_views.route('/stats', methods=['GET'])
-def stats():
-    """Retrieves the number of each object by type."""
-    classes = {
+@app_views.route("/stats", methods=["GET"])
+def stats_page():
+    """Returns a JSON response with the count of each
+        type of model in the database.
+        The counts are for the following
+        models: amenities, cities, places, reviews, states,
+        and users.
+    """
+    cls_to_plural = {
         "amenities": Amenity,
         "cities": City,
         "places": Place,
@@ -20,5 +32,5 @@ def stats():
         "states": State,
         "users": User
     }
-    counts = {cls: storage.count(cls_model) for cls, cls_model in classes.items()}
-    return jsonify(counts)
+    cls_count_dict = {key: storage.count(cls) for key, cls in cls_to_plural.items()}
+    return jsonify(cls_count_dict)
