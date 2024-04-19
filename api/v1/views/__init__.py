@@ -10,3 +10,5 @@ app_views = Blueprint("app_views", __name__, url_prefix='/api/v1')
 from .states import *  # This imports the states module
 from .index import *   # Assume you have some basic routes in index.py
 from .cities import *  # This imports the cities module
+from .amenities import *
+
