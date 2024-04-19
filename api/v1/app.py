@@ -1,23 +1,35 @@
+#!/usr/bin/python3
+"""First endpoint for API stats"""
 from flask import Flask, jsonify
-from api.v1.views import app_views
 from models import storage
+from api.v1.views import app_views
+from os import getenv
+from flask_cors import CORS # type: ignore
 
 app = Flask(__name__)
-app.register_blueprint(app_views, url_prefix='/api/v1')
+app.register_blueprint(app_views)
+
+# Creating a CORS instance w/ a wildcard for any origin
+cors = CORS(app, resources={r"/api/*": {"origins": "0.0.0.0"}})
+
 
 @app.teardown_appcontext
-def close_storage(exception):
-    """Close database or file storage"""
+def teardown_db(close):
+    """ Removes current storage"""
     storage.close()
 
+
+# the 404 handler
 @app.errorhandler(404)
 def not_found(error):
-    """Custom 404 error handler."""
     return jsonify({"error": "Not found"}), 404
 
 
+# Setup the host and port to either env values or defaults
+host = getenv("HBNB_API_HOST", default="0.0.0.0")
+port = getenv("HBNB_API_PORT", default="5000")
+
+
 if __name__ == "__main__":
-    import os
-    app.run(host=os.getenv('HBNB_API_HOST', '0.0.0.0'), 
-            port=os.getenv('HBNB_API_PORT', '5000'), 
-            threaded=True)
+
+    app.run(host=host, port=port, threaded=True)
